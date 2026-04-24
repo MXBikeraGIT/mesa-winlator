@@ -1,7 +1,10 @@
-name: Download and Extract Mesa Source
+name: Download and Extract Mesa Source to Repo
 
 on:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   download:
@@ -9,21 +12,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download Mesa source ZIP
-        run: |
-          curl -L -o mesa-main.zip "https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip?ref_type=heads"
+        run: curl -L -o mesa-main.zip "https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip?ref_type=heads"
 
       - name: Extract ZIP file
         run: unzip -q mesa-main.zip
 
-      - name: Verify extraction
-        run: ls -la mesa-main/ | head -20
+      - name: (Optional) Rename folder
+        run: |
+          # If you want to replace an existing mesa/ folder, uncomment:
+          # rm -rf mesa
+          # mv mesa-main mesa
+          echo "Extracted to ./mesa-main"
 
-      - name: Commit and push extracted files (optional)
+      - name: Commit and push extracted files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add mesa-main/
+          git add mesa-main/   # or mesa/ if you renamed
           git commit -m "Add Mesa source code" || echo "No changes to commit"
           git push
