@@ -1,0 +1,29 @@
+name: Download and Extract Mesa Source
+
+on:
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Mesa source ZIP
+        run: |
+          curl -L -o mesa-main.zip "https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip?ref_type=heads"
+
+      - name: Extract ZIP file
+        run: unzip -q mesa-main.zip
+
+      - name: Verify extraction
+        run: ls -la mesa-main/ | head -20
+
+      - name: Commit and push extracted files (optional)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mesa-main/
+          git commit -m "Add Mesa source code" || echo "No changes to commit"
+          git push
